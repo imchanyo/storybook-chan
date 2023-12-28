@@ -1,31 +1,42 @@
 name: "Chromatic Deployment"
-run-name: ${{ github.actor }}의 스토리북 배포
-on: push
 
-# List of jobs
+on:
+  pull_request:
+    branches: [main]
+
 jobs:
-  test:
-    # Operating System
+  chromatic-deploy:
     runs-on: ubuntu-latest
-    # Job steps
     steps:
-      - uses: actions/checkout@v2 # Update to the latest version of checkout action
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - name: Setup Node.js
-        uses: actions/setup-node@v2 # Example of using a different action
+        uses: actions/setup-node@v3
         with:
-          node-version: "18"
-      - name: Cache Dependencies
-        uses: actions/cache@v2
+          node-version: "18.16.0"
+
+      - name: Install pnpm
+        run: |
+          npm install -g pnpm
+
+      - name: Install Dependency
+        run: pnpm install -no-frozen-lockfile
+        working-directory: packages/web-ui
+
+      - name: Publish Chromatic
+        id: chromatic
+        uses: chromaui/action@v1
         with:
-          path: ~/.pnpm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - run: pnpm
-      - name: Run Chromatic
-        uses: chromaui/action@v1 # Update to the latest version of Chromatic action
-        with:
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: packages/web-ui/src
+          projectToken: ${{ secrets.CHROMATIC_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create comment PR
+        uses: thollander/actions-comment-pull-request@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          message: "🚀storybook: ${{ steps.chromatic.outputs.storybookUrl }}"
