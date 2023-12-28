@@ -32,7 +32,7 @@ jobs:
       - name: Pull dependencies
         uses: pnpm/action-setup@v2.0.1
         with:
-          version: 8.13.1
+          version: 6.3.0
           run_install: true
 
       - name: Push Storybook to Chromatic
