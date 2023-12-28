@@ -2,21 +2,45 @@ name: "Chromatic Deployment"
 run-name: ${{ github.actor }}의 스토리북 배포
 on: push
 
-# List of jobs
 jobs:
-  chromatic-deployment:
-    # Operating System
+  chromatic:
+    name: Chromatic
     runs-on: ubuntu-latest
-    # Job steps
     steps:
-      - uses: actions/checkout@v1
-      - name: Install dependencies
-        run: pnpm
-        # 👇 Adds Chromatic as a step in the workflow
-      - name: Publish to Chromatic
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 18
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v2
+        env:
+          cache-hash: ${{ hashFiles('pnpm-lock.yaml') }}
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-os_${{ runner.os }}-node_12-lock_${{ env.cache-hash }}
+          restore-keys: |
+            pnpm-os_${{ runner.os }}-node_12-
+            pnpm-os_${{ runner.os }}-
+            pnpm-
+
+      - name: Pull dependencies
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.3.0
+          run_install: true
+
+      - name: Push Storybook to Chromatic
         uses: chromaui/action@v1
-        # Chromatic GitHub Action options
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # 👇 Chromatic projectToken, refer to the manage page to obtain it.
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: "build:storybook"
+          autoAcceptChanges: master
+          exitZeroOnChanges: true
+          exitOnceUploaded: true
