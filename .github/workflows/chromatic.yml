@@ -24,7 +24,7 @@ jobs:
         id: chromatic
         uses: chromaui/action@latest
         with:
-          workingDir: packages/web-ui/src
+          workingDir: packages/project_1
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
