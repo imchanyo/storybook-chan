@@ -19,11 +19,11 @@ jobs:
       - name: Cache Dependencies
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          path: ~/.pnpm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: yarn
+      - run: pnpm
       - name: Run Chromatic
         uses: chromaui/action@v1 # Update to the latest version of Chromatic action
         with:
