@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm run build:storybook",
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "chromatic": "bash ./scripts/chromatic_publish.sh"
+    "build:storybook": "build-storybook",
+    "chromatic": "chromatic --exit-zero-on-changes"
   },
   "dependencies": {
     "next": "13.5.6",
