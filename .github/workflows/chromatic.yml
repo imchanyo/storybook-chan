@@ -17,15 +17,8 @@ jobs:
           node-version: "18.16.0"
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: false
-
-      - name: Install Dependency
-        run: pnpm install -no-frozen-lockfile
-        working-directory: packages/web-ui
+        run: |
+          npm install -g pnpm
 
       - name: Publish Chromatic
         id: chromatic
