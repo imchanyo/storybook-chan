@@ -4,31 +4,30 @@ on:
   pull_request:
     branches:
       - develop
+# List of jobs
 jobs:
-  storybook:
-    runs-on: ubuntu-20.04
-    outputs:
-      status: ${{ job.status }}
+  test:
+    # Operating System
+    runs-on: ubuntu-latest
+    # Job steps
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2 # Update to the latest version of checkout action
         with:
           fetch-depth: 0
-
-      - name: cache dependencies
-        id: cache
-        uses: actions/cache@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v2 # Example of using a different action
         with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-storybook
-
-      - name: depedency install
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: publish to chromatic
-        id: chromatic
-        uses: chromaui/action@v1
+          node-version: 16
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: yarn
+      - name: Run Chromatic
+        uses: chromaui/action@v1 # Update to the latest version of Chromatic action
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
