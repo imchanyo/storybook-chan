@@ -2,34 +2,19 @@ name: "Chromatic Deployment"
 run-name: ${{ github.actor }}의 스토리북 배포
 on: push
 
+# List of jobs
 jobs:
-  chromatic-deploy:
+  test:
+    # Operating System
     runs-on: ubuntu-latest
+    # Job steps
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v1
+      - run: yarn
+        #👇 Adds Chromatic as a step in the workflow
+      - uses: chromaui/action@v1
+        # Options required for Chromatic's GitHub Action
         with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18.16.0"
-
-      - name: Install pnpm
-        run: |
-          npm install -g pnpm
-
-      - name: Publish Chromatic
-        id: chromatic
-        uses: chromaui/action@v1
-        with:
+          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/ko/deploy/ to obtain it
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create comment PR
-        uses: thollander/actions-comment-pull-request@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          message: "🚀storybook: ${{ steps.chromatic.outputs.storybookUrl }}"
